@@ -7,6 +7,11 @@ This project simulates a multi-environment AWS setup (`develop`, `nonprod`) usin
 - **GitHub Actions** for CI + local testing via [`act`](https://github.com/nektos/act)
 - **Terratest** (Go) for infrastructure test automation
 
+
+[![Terraform](https://img.shields.io/badge/IaC-Terraform-blue)](https://www.terraform.io/)
+[![LocalStack](https://img.shields.io/badge/Simulated-AWS-lightgrey)](https://localstack.cloud)
+[![CI](https://github.com/enturesting/cloudsimulation_localstack/actions/workflows/terraform-test.yml/badge.svg)](https://github.com/enturesting/cloudsimulation_localstack/actions)
+
 ---
 
 ## 📁 Folder Structure
@@ -14,7 +19,7 @@ This project simulates a multi-environment AWS setup (`develop`, `nonprod`) usin
 ```bash
 tf-project-root/
 ├── modules/                  # Reusable Terraform modules
-│   ├── app_stack/   # Composable app infrastructure (IAM, EC2, S3, Dynamo) (coming soon)
+│   ├── app_stack/   # (WIP) Composable app infrastructure (IAM, EC2, S3, Dynamo)
 │   ├── s3/
 │   ├── ec2/
 │   ├── dynamodb/
@@ -36,7 +41,7 @@ tf-project-root/
 ├── .github/
 │   └── workflows/
 │       └── act-test.yml     # GitHub Actions workflow for LOCAL CI/Terratest using ACT
-        └── terraform-test.yml  # GitHub Actions workflow for Github Push CI/Terratest
+│       └── terraform-test.yml  # GitHub Actions workflow for Github Push CI/Terratest
 ├── test/
 │   └── ec2_test.go          # Example Terratest file (Go)
 │   └── dynamo_test.go       # Example Terratest file (Go)
@@ -54,14 +59,26 @@ tf-project-root/
 ## 🚀 Deploy an Environment
 ```powershell
 # From project root:
-.\scripts\apply_env.ps1 -env dev     # or -env nonprod
+.\scripts\apply_env.ps1 -env develop     # or -env nonprod
 ```
 This will:
-- Load the correct credentials for the environment
-- Initialize and plan Terraform using the shared `main.tf`
+- Load access keys and provider configs
+- Initialize + plan Terraform with environments/main.tf
 - Load conditional modules like EC2, IAM, VPC, and KMS based on .tfvars
 - Prompt before applying
 
+## ⚙️ Register a Mock AMI (for EC2 module testing)
+`.\scripts\register_mock_ami.ps1 -Env develop`
+Creates a mock AMI on LocalStack and writes it to the .auto.tfvars.json file to simulate EC2 launch scenarios.
+⚠️ Known Issue: AWS CLI sometimes rejects the JSON input. Fixes may require ConvertTo-Json -Depth 5 or manual editing.
+
+## 🧪 Run Tests Locally via act
+`act -W .github/workflows/act-test.yml`
+- This simulates your GitHub Actions pipeline locally:
+- Lints and formats Terraform code
+- Runs Terratest (Go)
+- Validates mock AMI registration
+- Supports environment matrix (feature, develop, nonprod)
 
 ---
 
@@ -71,7 +88,7 @@ This will:
 | `reset_localstack.ps1` | Resets LocalStack runtime + volume       | Stops/removes the container, clears volume, restarts with multi-account support | ✅ Yes          |
 | `clean-reset.ps1`      | Cleans Terraform & LocalStack resources  | Destroys S3 buckets, DynamoDB tables, schedules KMS deletion                   | ❌ No           |
 
-> Use `clean-reset.ps1 -env dev` before a clean deploy.
+> Use `clean-reset.ps1 -env develop` before a clean deploy.
 
 ---
 
@@ -80,8 +97,8 @@ This will:
 cd environments
 
 terraform init
-terraform plan -var-file="dev.tfvars"
-terraform apply -var-file="dev.tfvars"
+terraform plan -var-file="develop.tfvars"
+terraform apply -var-file="develop.tfvars"
 
 # Switch to nonprod
 terraform plan -var-file="nonprod.tfvars"
@@ -93,20 +110,33 @@ terraform apply -var-file="nonprod.tfvars"
 ## 🔧 LocalStack Notes
 - Port **4566**: main LocalStack gateway for AWS APIs
 - Port **31566**: LocalStack Web UI only
-- Credentials (access/secret keys) are configured in `.tfvars` and auto-injected
+- Credentials are stored locally in `.tfvars` and also injected from GitHub Actions environment-specific secrets
 - Multi-account mode enabled via `LS_PLATFORM_MULTI_ACCOUNT=true`
-LocalStack UI may still group all environments under one account visually
+- LocalStack UI may still group all environments under one account visually
 ---
 
 ## ✨ Future Enhancements
-- Add `outputs.tf` in each module to expose useful values
+- Add shared tagging logic via locals
+- Add version constraints + module registries
 - Use `locals` for tag standardization
+- Create apply_env.sh for macOS/Linux parity
 - Add backend block (e.g., S3) to simulate remote state
-- Add VPC, IAM, and KMS modules with conditional creation
 - Create `apply_env.sh` for Linux/macOS compatibility
+- Add VPC networking tests and log analysis
+- Automate publishing module docs with Docsify
 - Expand test coverage (e.g., more AWS services, error scenarios)
+- Enforce tagging/validation across all modules
+- Publish GitHub Action as reusable workflow
 
 ## ⚠️ Known Issues
-- `register_mock_ami.ps1` may fail with "Invalid JSON" or `cli-input-json` errors due to escaping or AWS CLI expectations
-- LocalStack UI may not visually separate environments, even with unique credentials
+- LocalStack UI may not visually separate environments, even with unique credentials (in coming update)
 - `aws_s3_bucket_v2` may fail if LocalStack version or Terraform provider doesn't fully support it
+- Terratest requires Go installed + configured locally
+
+## 📦 Requirements
+
+- Terraform CLI v1.5+
+- LocalStack Pro (Docker)
+- Go (for Terratest)
+- PowerShell (for Windows) or Bash (for Linux/macOS)
+- GitHub Actions / [act](https://github.com/nektos/act)
