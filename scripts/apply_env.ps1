@@ -17,9 +17,9 @@ switch ($env) {
         $env:AWS_ACCOUNT_ID = "222222222222"
     }
     "feature" {
-        $env:AWS_ACCESS_KEY_ID = "feature-access"
-        $env:AWS_SECRET_ACCESS_KEY = "feature-secret"
-        $env:AWS_ACCOUNT_ID = "444444444444"
+        $env:AWS_ACCESS_KEY_ID = "develop-access"
+        $env:AWS_SECRET_ACCESS_KEY = "develop-secret"
+        $env:AWS_ACCOUNT_ID = "333333333333"
     }
 }
 

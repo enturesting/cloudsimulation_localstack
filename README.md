@@ -1,9 +1,11 @@
 # 🛠️ LocalStack Terraform Demo Lab
 
-This project simulates a multi-environment AWS setup (`dev`, `nonprod`) using:
+This project simulates a multi-environment AWS setup (`develop`, `nonprod`) using:
 - **Terraform** with modular, reusable infrastructure
 - **LocalStack Pro** for AWS API simulation
 - **Rancher Desktop** with **dockerd** as the container engine
+- **GitHub Actions** for CI + local testing via [`act`](https://github.com/nektos/act)
+- **Terratest** (Go) for infrastructure test automation
 
 ---
 
@@ -12,26 +14,39 @@ This project simulates a multi-environment AWS setup (`dev`, `nonprod`) using:
 ```bash
 tf-project-root/
 ├── modules/                  # Reusable Terraform modules
+│   ├── app_stack/   # Composable app infrastructure (IAM, EC2, S3, Dynamo) (coming soon)
 │   ├── s3/
-│   │   ├── main.tf
-│   │   └── outputs.tf
 │   ├── ec2/
-│   │   ├── main.tf
-│   │   └── outputs.tf
-│   └── dynamodb/
-│       ├── main.tf
-│       └── outputs.tf
-├── environments/            # Environment configs
-│   ├── dev.tfvars
+│   ├── dynamodb/
+│   ├── iam/                  # Optional IAM module
+│   ├── kms/                  # Optional KMS key module
+│   └── vpc/                  # Optional VPC module
+├── environments/            # Shared environment configurations
+│   ├── develop.tfvars
 │   ├── nonprod.tfvars
-│   ├── main.tf               # Shared main entrypoint
-│   └── variables.tf          # Shared variable declarations, supports conditional module loading
-├── scripts/                 # Automation and helper scripts
-│   ├── apply_env.ps1        # Deploy per environment
-│   ├── reset_localstack.ps1 # Reset Docker container
-│   ├── clean-reset.ps1      # Cleanup Terraform state & LocalStack data
-│   └── register_mock_ami.ps1 # In progress: registers mock AMIs for EC2 module testing in LocalStack
+│   ├── main.tf              # Shared entrypoint for Terraform environments
+│   ├── variables.tf         # Shared variables across environments
+│   └── outputs.tf           # Shared environment outputs
+├── scripts/                 # PowerShell & Bash automation helpers
+│   ├── apply_env.ps1        # Deploy Terraform with selected .tfvars file
+│   ├── reset_localstack.ps1 # Stop/remove container, wipe volume, restart
+│   ├── clean-reset.ps1      # Destroy Terraform + LocalStack resources (no restart)
+│   └── register_mock_ami.ps1 # Register mock AMIs for LocalStack EC2
+│   └── register_mock_ami.sh  # Register mock AMIs for LocalStack EC2 (bash version)
+├── .github/
+│   └── workflows/
+│       └── act-test.yml     # GitHub Actions workflow for LOCAL CI/Terratest using ACT
+        └── terraform-test.yml  # GitHub Actions workflow for Github Push CI/Terratest
+├── test/
+│   └── ec2_test.go          # Example Terratest file (Go)
+│   └── dynamo_test.go       # Example Terratest file (Go)
+│   └── vpc_test.go          # Example Terratest file (Go)
+│   └── iam_test.go          # Example Terratest file (Go)
+│   └── s3_test.go           # Example Terratest file (Go)
+│   └── kms_test.go          # Example Terratest file (Go)
+├── docs/                    # Placeholder for Docsify local module registry
 └── README.md
+
 ```
 
 ---
