@@ -30,11 +30,6 @@ variable "attribute_type" {
   type        = string
 }
 
-variable "ami" {
-  description = "AMI ID to use for EC2"
-  type        = string
-}
-
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
@@ -102,4 +97,14 @@ variable "output_debug_info" {
 variable "ami_id" {
   description = "The mock AMI ID registered for EC2"
   type        = string
+}
+
+variable "account_id" {
+  type        = string
+  description = "Mock AWS account ID for use in simulated resources"
+}
+
+variable "name" {
+  type        = string
+  description = "Name or identifier used for naming resources (e.g. VPC, tags)"
 }

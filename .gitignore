@@ -1,11 +1,12 @@
 # Terraform
-*.tfstate
+*.tfstate*
 *.tfstate.backup
 .terraform/
 .terraform.lock.hcl
 *.tfvars.local
 terraform.tfvars
-
+*.auto.tfvars.json*
+*tfplan*
 # Secrets
 .env
 *.env

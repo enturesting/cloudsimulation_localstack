@@ -8,14 +8,14 @@ This folder contains helpful PowerShell scripts to manage and visualize Terrafor
 ### `apply_env.ps1`
 Deploys a Terraform environment by specifying the environment name (`dev` or `nonprod`).
 #### **Usage**
-.\apply_env.ps1 -env dev
+.\apply_env.ps1 -env develop
 .\apply_env.ps1 -env nonprod
 
 ### `clean-reset.ps1`
 Performs a hard reset of all local state:
 Deletes Terraform state files. Wipes LocalStack data directory. Useful for full environment reboots
 #### **Usage**
-.\clean-reset.ps1
+.\clean-reset.ps1 - env develop
 
 ### `register_mock_ami.ps1`
 Registers a mock AMI in LocalStack for use with EC2 testing.
@@ -30,15 +30,15 @@ Stops and restarts the LocalStack container (e.g., if you're running it manually
 .\reset_localstack.ps1
 
 ### `visualize_aws_tf_env.ps1`
-Displays current LocalStack resources (S3, DynamoDB, IAM, EC2) for the specified environment (dev, nonprod, or all).
-Useful for debugging and verifying what exists in your simulated AWS environment. Supports: dev, nonprod, or all
+Displays current LocalStack resources (S3, DynamoDB, IAM, EC2) for the specified environment (develop, nonprod, or all).
+Useful for debugging and verifying what exists in your simulated AWS environment. Supports: develop, nonprod, or all
 Resources shown: S3 buckets, DynamoDB tables, IAM roles, EC2 instances
 #### **Usage**
 .\visualize_aws_tf_env.ps1 -Env all
 
 ### `Prerequisites`
 * Terraform installed
-* AWS CLI installed and profiles set up (dev, nonprod)
+* AWS CLI installed and profiles set up (develop, nonprod)
 * LocalStack running at http://localhost:4566
 * PowerShell 5.1+ or PowerShell Core
 
@@ -46,5 +46,5 @@ Resources shown: S3 buckets, DynamoDB tables, IAM roles, EC2 instances
 Use these scripts together for a complete LocalStack + Terraform testing workflow. For example:
 
 .\reset_localstack.ps1
-.\apply_env.ps1 -env dev
-.\visualize_aws_tf_env.ps1 -Env dev
+.\apply_env.ps1 -env develop
+.\visualize_aws_tf_env.ps1 -env develop

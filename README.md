@@ -80,7 +80,38 @@ Creates a mock AMI on LocalStack and writes it to the .auto.tfvars.json file to 
 - Validates mock AMI registration
 - Supports environment matrix (feature, develop, nonprod)
 
+## 🔐 Handling Credentials and Secrets
+
+Terraform loads credentials from environment-specific `.auto.tfvars.json` files which are **excluded from version control** via `.gitignore`.
+
+Example:
+- `develop.auto.tfvars.json.example` is provided with safe dummy values for LocalStack use
+- To use: copy and modify locally
+
+```bash
+cp environments/develop.auto.tfvars.json.example environments/develop.auto.tfvars.json
+
 ---
+
+┌────────────────────────────────────┐
+│  develop.tfvars                    │
+│  - static inputs (AMI, flags)      │
+│  - NO credentials                  │
+└──────────────┬─────────────────────┘
+               │
+┌──────────────▼─────────────────────┐
+│  develop.auto.tfvars.json         │
+│  - local dummy secrets & ids      │
+│  - not checked into Git           │
+└──────────────┬─────────────────────┘
+               │
+        ┌──────▼──────┐
+        │  main.tf    │ → Loads both files
+        └─────────────┘
+               │
+     ┌─────────▼─────────┐
+     │ LocalStack Apply  │ → Creates VPC, IAM, EC2, etc.
+     └───────────────────┘
 
 ## 🧼 Cleanup Scripts
 | Script Name            | Purpose                                  | Actions Taken                                                                  | Restarts Docker |

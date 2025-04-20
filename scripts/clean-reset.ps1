@@ -5,22 +5,31 @@ param (
 
 Write-Host "`n==== CLEAN RESET SCRIPT FOR LOCALSTACK ($env) ====" -ForegroundColor Cyan
 
-# Set fake account credentials based on env
-if ($env -eq "dev") {
-    $env:AWS_ACCESS_KEY_ID = "dev-access"
-    $env:AWS_SECRET_ACCESS_KEY = "dev-secret"
-    $env:AWS_ACCOUNT_ID = "111111111111"
-}
-elseif ($env -eq "nonprod") {
-    $env:AWS_ACCESS_KEY_ID = "nonprod-access"
-    $env:AWS_SECRET_ACCESS_KEY = "nonprod-secret"
-    $env:AWS_ACCOUNT_ID = "222222222222"
-}
-else {
-    Write-Host "Invalid or missing environment: $env" -ForegroundColor Red
+# Load from auto.tfvars.json instead of hardcoded credentials
+$secretsFile = "environments\$env.auto.tfvars.json"
+if (-not (Test-Path $secretsFile)) {
+    Write-Host "❌ Secrets file not found: $secretsFile" -ForegroundColor Red
+    Write-Host "Please create it from the .example file or update manually."
     exit 1
 }
 
+$secrets = Get-Content $secretsFile | ConvertFrom-Json
+
+# Validate expected keys
+if (-not $secrets.account_id -or -not $secrets.access_key -or -not $secrets.secret_key) {
+    Write-Host "Missing one or more required keys in `${secretsFile}`:`nExpected:" -ForegroundColor Red
+    Write-Host "  - account_id"
+    Write-Host "  - access_key"
+    Write-Host "  - secret_key"
+    exit 1
+}
+
+# Export as env vars
+$env:AWS_ACCESS_KEY_ID  = $secrets.access_key
+$env:AWS_SECRET_ACCESS_KEY = $secrets.secret_key
+$env:AWS_ACCOUNT_ID     = $secrets.account_id
+
+# Prompt user before nuking
 if (-not $AutoApprove) {
     $confirm = Read-Host "This will nuke S3, DynamoDB, EC2, IAM, KMS, and VPC resources in LocalStack for '$env'. Continue? (y/n)"
     if ($confirm -ne 'y') {
