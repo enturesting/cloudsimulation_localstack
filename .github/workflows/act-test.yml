@@ -1,0 +1,51 @@
+name: ACT Compatible Terraform Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  local-test:
+    name: Local Terraform + Terratest
+    runs-on: ubuntu-latest
+
+    env:
+      LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.22
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Fix Terraform Permissions
+        run: chmod +x $(find /tmp -type f -name terraform | head -n 1)
+
+      - name: Terraform Format Check
+        working-directory: ./environments
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init (develop only)
+        working-directory: ./environments
+        run: terraform init
+
+      - name: Terraform Validate (develop only)
+        working-directory: ./environments
+        run: terraform validate
+
+      - name: Register Mock AMI (all environments)
+        run: |
+          for ENV in develop nonprod; do
+            echo "🔁 Registering AMI for $ENV"
+            ./scripts/register_mock_ami.sh $ENV
+          done
+        shell: bash
+
+      - name: Run Terratest
+        run: go test ./test/... -v

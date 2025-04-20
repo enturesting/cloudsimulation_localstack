@@ -1,0 +1,29 @@
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+*.tfvars.local
+terraform.tfvars
+
+# Secrets
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Docs
+docs/.DS_Store
+docs/node_modules/
+
+# Go
+bin/
+*.exe
+*.test
+*.out
