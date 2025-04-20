@@ -53,6 +53,8 @@ tf-project-root/
 └── README.md
 
 ```
+## 🔐 Security Considerations & Secret Scrubbing
+Before making this repository public, all committed secrets (even dummy credentials used for LocalStack) were purged from Git history. This ensures no historical commits expose sensitive or simulated AWS keys. Secrets used for local testing are now stored only in uncommitted *.auto.tfvars.json files and excluded via .gitignore.
 
 ---
 
