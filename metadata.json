@@ -1,0 +1,9 @@
+{
+    "name": "s3",
+    "description": "Terraform module to provision S3 buckets on LocalStack",
+    "maintainers": ["nick"],
+    "terraform_version": ">= 1.5.0",
+    "providers": ["aws"],
+    "tags": ["localstack", "terraform", "s3"]
+  }
+  

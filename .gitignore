@@ -1,0 +1,42 @@
+# Terraform
+*.tfstate*
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+*.tfvars.local
+terraform.tfvars
+*.auto.tfvars
+*tfplan*
+register-ami-*-*.json
+# Secrets
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+/logs/
+# Docs
+docs/.DS_Store
+docs/node_modules/
+
+# Go
+bin/
+*.exe
+*.test
+*.out
+
+# Python
+__pycache*
+.pytest_cach*
+
+# Localstack
+localstack/
+
+
+# zip 
+*.zip

@@ -1,0 +1,61 @@
+name: ACT Compatible Terraform Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  local-test:
+    name: Local Terraform + Terratest
+    runs-on: ubuntu-latest
+
+    env:
+      LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.22
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Fix Terraform Permissions
+        run: chmod +x $(find /tmp -type f -name terraform | head -n 1)
+
+      - name: Run Terraform Hygiene Script
+        shell: pwsh
+        run: ./scripts/lint_terraform.ps1
+
+      - name: Register Mock AMI (all environments)
+        run: |
+          for ENV in develop nonprod; do
+            echo "Registering AMI for $ENV"
+            ./scripts/register_mock_ami.sh $ENV
+          done
+        shell: bash
+
+      - name: Validate Long-Form Module Docs
+        shell: pwsh
+        run: |
+          pwsh ./scripts/ci_docs_validate.ps1
+
+      - name: Run Go Tests
+        run: go test ./test/go/... -v
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Run Python Tests
+        run: python -m pytest test/python/ -v

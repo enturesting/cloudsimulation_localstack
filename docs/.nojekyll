@@ -1,0 +1,4 @@
+echo > docs/.nojekyll
+git add docs/_sidebar.md docs/_navbar.md docs/.nojekyll
+git commit -m "Use _sidebar.md/_navbar.md + disable Jekyll"
+git push origin feature/mvp

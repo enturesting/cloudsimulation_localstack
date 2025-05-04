@@ -1,0 +1,77 @@
+name: Terraform CI & Terratest (Bash Compatible)
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/mvp
+  pull_request:
+
+jobs:
+  deploy:
+    name: "${{ matrix.env }} Terraform + Tests"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - env: feature
+            branch: feature/mvp
+            tfvars: develop.tfvars
+            ami_env: develop
+          - env: develop
+            branch: develop
+            tfvars: develop.tfvars
+            ami_env: develop
+          - env: dev
+            branch: main
+            tfvars: develop.tfvars
+            ami_env: develop
+          - env: nonprod
+            branch: main
+            tfvars: nonprod.tfvars
+            ami_env: nonprod
+
+    if: startsWith(github.ref, 'refs/heads/') && github.ref == format('refs/heads/{0}', matrix.branch)
+
+    environment: ${{ matrix.env }}
+
+    env:
+      LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.22
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Run Terraform Hygiene Script
+        shell: pwsh
+        run: ./scripts/lint_terraform.ps1
+
+      - name: Register Mock AMI
+        working-directory: ./scripts
+        run: pwsh ./register_mock_ami.ps1 -Env ${{ matrix.ami_env }}
+
+      - name: Run Go Tests
+        run: go test ./test/go/... -v
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Run Python Tests
+        run: python -m pytest test/python/ -v

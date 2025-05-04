@@ -1,0 +1,42 @@
+<!-- docs/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LocalStack Terraform Modules</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Documentation for LocalStack Terraform Modules">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css">
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name: 'LocalStack Terraform Modules',
+      repo: 'enturesting/cloudsimulation_localstack',
+      loadSidebar: true,
+      loadNavbar: true,
+      subMaxLevel: 3,
+      homepage: 'index.md',
+      alias: {
+        '/.*/_sidebar.md': '/_sidebar.md',
+        '/.*/_navbar.md': '/_navbar.md'
+      },
+      versioning: {
+        enabled: true,
+        defaultVersion: 'v0.1.0',
+        versions: [
+          {
+            name: 'v0.1.0',
+            label: 'MVP Release'
+          }
+        ]
+      }
+    }
+  </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-versioning@1.0.0"></script>
+</body>
+</html>

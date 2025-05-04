@@ -1,0 +1,8 @@
+# Committed example (no real secrets)
+
+localstack_api_key = "<YOUR_LOCALSTACK_API_KEY>"
+aws_access_key     = "<YOUR_FAKE_AWS_ACCESS_KEY>"
+aws_secret_key     = "<YOUR_FAKE_AWS_SECRET_KEY>"
+ami_id             = "<YOUR_AMI_ID>"
+bucket_name        = "<YOUR_BUCKET_NAME>"
+account_id     = "000000000000"  # mock 12-digit ID
