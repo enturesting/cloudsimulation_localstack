@@ -28,7 +28,21 @@ func TestDynamodbModule(t *testing.T) {
                         "AWS_REGION":            "us-east-1",
                     },
                 }
+# main.tf
+module "dynamodb_context" {
+  source = "../../dynamodb"
+  # ... existing config
+}
 
+module "lambda_handler" {
+  source = "../../lambda"
+  # ... existing config
+}
+
+module "api_gateway" {
+  source = "../../api_gateway"
+  # ... existing config
+}
                 defer terraform.Destroy(t, terraformOptions)
                 terraform.InitAndApply(t, terraformOptions)
 

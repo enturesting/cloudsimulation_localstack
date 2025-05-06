@@ -37,6 +37,8 @@ __pycache*
 # Localstack
 localstack/
 
+# Node.js
+node_modules/
 
 # zip 
 *.zip
