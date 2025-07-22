@@ -30,7 +30,15 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Fix Terraform Permissions
-        run: chmod +x $(find /tmp -type f -name terraform | head -n 1)
+        run: |
+          # Find terraform binary in more specific locations to avoid systemd directories
+          TERRAFORM_PATH=$(which terraform || find /opt/hostedtoolcache -name terraform -type f 2>/dev/null | head -n 1)
+          if [ -n "$TERRAFORM_PATH" ] && [ -f "$TERRAFORM_PATH" ]; then
+            chmod +x "$TERRAFORM_PATH"
+            echo "Fixed permissions for: $TERRAFORM_PATH"
+          else
+            echo "Terraform binary already has correct permissions or not found in expected locations"
+          fi
 
       - name: Run Terraform Hygiene Script
         shell: pwsh
