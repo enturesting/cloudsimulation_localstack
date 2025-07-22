@@ -165,10 +165,18 @@ jobs:
       - name: Validate Long-Form Module Docs
         shell: pwsh
         run: |
-          pwsh ./scripts/ci_docs_validate.ps1
+          # Fix the path for CI environment
+          cd scripts
+          pwsh ./ci_docs_validate.ps1
 
       - name: Run Go Tests
-        run: go test ./test/go/... -v
+        run: |
+          # Initialize Go modules and download dependencies
+          go mod tidy
+          go mod download
+          
+          # Run Go tests
+          go test ./test/go/... -v
 
       - name: Install Python Dependencies
         run: |

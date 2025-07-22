@@ -2,7 +2,9 @@
 
 Write-Host "CI: Validating that each module has docs/content.md..."
 
-$modules = Get-ChildItem -Path ../modules -Directory
+# Handle both local and CI execution contexts
+$modulesPath = if (Test-Path "../modules") { "../modules" } else { "./modules" }
+$modules = Get-ChildItem -Path $modulesPath -Directory
 $missingDocs = @()
 
 foreach ($module in $modules) {
