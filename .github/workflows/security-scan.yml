@@ -1,0 +1,114 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run weekly security scans
+    - cron: '0 2 * * 1'
+
+jobs:
+  security-scan:
+    name: Infrastructure Security Scan
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      security-events: write  # For uploading SARIF results
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-hcl2
+      
+      - name: Install tfsec
+        run: |
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+          sudo mv tfsec /usr/local/bin/
+      
+      - name: Install checkov
+        run: |
+          pip install checkov
+      
+      - name: Run internal security scanner
+        run: |
+          cd scripts
+          python security_scan.py --modules-dir ../modules --output-dir ../security-reports --format all --external
+      
+      - name: Upload SARIF results to GitHub
+        if: always()
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: security-reports/security_report.sarif
+          category: terraform-security
+      
+      - name: Upload security reports as artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: security-reports/
+          retention-days: 30
+      
+      - name: Comment on PR with security summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            try {
+              const reportPath = 'security-reports/security_report.json';
+              if (fs.existsSync(reportPath)) {
+                const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+                
+                const summary = `## 🔒 Security Scan Results
+            
+            **Total Issues:** ${report.scan_metadata.total_findings}
+            
+            | Severity | Count |
+            |----------|-------|
+            | 🚨 Critical | ${report.summary.critical_issues} |
+            | ⚠️ High | ${report.summary.high_issues} |
+            | ⚡ Medium | ${report.summary.medium_issues} |
+            | 💡 Low | ${report.summary.low_issues} |
+            | ℹ️ Info | ${report.summary.info_issues} |
+            
+            ${report.summary.critical_issues > 0 ? '**⚠️ Critical issues found! Please review and fix before merging.**' : ''}
+            ${report.summary.high_issues > 0 ? '**⚠️ High-severity issues found. Consider fixing before merging.**' : ''}
+            
+            [View detailed report in the workflow artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+            
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: summary
+                });
+              }
+            } catch (error) {
+              console.log('Could not create comment:', error.message);
+            }
+      
+      - name: Fail on critical security issues
+        run: |
+          if [ -f "security-reports/security_report.json" ]; then
+            critical_count=$(python -c "import json; report=json.load(open('security-reports/security_report.json')); print(report['summary']['critical_issues'])")
+            if [ "$critical_count" -gt 0 ]; then
+              echo "❌ Found $critical_count critical security issues. Failing the build."
+              echo "Please review the security report and fix critical issues before proceeding."
+              exit 1
+            fi
+          fi

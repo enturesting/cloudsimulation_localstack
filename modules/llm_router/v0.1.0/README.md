@@ -3,7 +3,7 @@
 This Terraform module sets up an LLM Router infrastructure with the following components:
 - Lambda function for handling LLM requests
 - API Gateway for exposing the Lambda function
-- DynamoDB table for storing conversation history
+- DynamoDB table for storing conversation history and context store
 
 ## Module Structure
 ```

@@ -1,0 +1,309 @@
+{
+  "summary": {
+    "total_modules": 9,
+    "total_versions": 17,
+    "total_dependencies": 0
+  },
+  "modules": {
+    "api_gateway": {
+      "v0.1.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_api_gateway_rest_api": 1,
+          "aws_api_gateway_resource": 1,
+          "aws_api_gateway_method": 1,
+          "aws_api_gateway_integration": 1,
+          "aws_api_gateway_deployment": 1,
+          "aws_api_gateway_stage": 1
+        },
+        "examples": []
+      },
+      "v0.2.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_api_gateway_rest_api": 1,
+          "aws_api_gateway_resource": 1,
+          "aws_api_gateway_method": 1,
+          "aws_api_gateway_integration": 1,
+          "aws_api_gateway_deployment": 1,
+          "aws_api_gateway_stage": 1
+        },
+        "examples": [
+          {
+            "name": "basic_usage",
+            "dependencies": [
+              ".."
+            ],
+            "resources": {}
+          }
+        ]
+      }
+    },
+    "dynamodb": {
+      "v0.1.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_dynamodb_table": 1
+        },
+        "examples": []
+      },
+      "v0.2.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_dynamodb_table": 1
+        },
+        "examples": [
+          {
+            "name": "basic_usage",
+            "dependencies": [
+              ".."
+            ],
+            "resources": {}
+          },
+          {
+            "name": "user_sessions",
+            "dependencies": [],
+            "resources": {
+              "aws_lambda_function": 1,
+              "aws_iam_role": 1,
+              "aws_iam_role_policy": 1
+            }
+          }
+        ]
+      }
+    },
+    "ec2": {
+      "v0.1.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_instance": 1
+        },
+        "examples": []
+      },
+      "v0.2.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_instance": 1
+        },
+        "examples": [
+          {
+            "name": "basic_usage",
+            "dependencies": [
+              ".."
+            ],
+            "resources": {}
+          }
+        ]
+      }
+    },
+    "iam": {
+      "v0.1.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_iam_role": 1,
+          "aws_iam_policy": 1,
+          "aws_iam_role_policy_attachment": 1
+        },
+        "examples": []
+      },
+      "v0.2.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_iam_role": 1,
+          "aws_iam_policy": 1,
+          "aws_iam_role_policy_attachment": 1
+        },
+        "examples": [
+          {
+            "name": "basic_usage",
+            "dependencies": [
+              ".."
+            ],
+            "resources": {}
+          }
+        ]
+      }
+    },
+    "kms": {
+      "v0.1.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_kms_key": 1
+        },
+        "examples": []
+      },
+      "v0.2.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_kms_key": 1
+        },
+        "examples": [
+          {
+            "name": "basic_usage",
+            "dependencies": [
+              ".."
+            ],
+            "resources": {}
+          }
+        ]
+      }
+    },
+    "lambda": {
+      "v0.1.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_lambda_function": 1,
+          "aws_lambda_permission": 1
+        },
+        "examples": []
+      },
+      "v0.2.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_lambda_function": 1,
+          "aws_lambda_permission": 1
+        },
+        "examples": [
+          {
+            "name": "api_microservice",
+            "dependencies": [
+              "api_gateway",
+              "dynamodb"
+            ],
+            "resources": {
+              "aws_iam_role": 1,
+              "aws_iam_role_policy": 1,
+              "aws_iam_role_policy_attachment": 1,
+              "aws_sqs_queue": 1,
+              "aws_cloudwatch_log_group": 1,
+              "aws_cloudwatch_metric_alarm": 1
+            }
+          },
+          {
+            "name": "basic_usage",
+            "dependencies": [
+              ".."
+            ],
+            "resources": {}
+          }
+        ]
+      }
+    },
+    "llm_router": {
+      "v0.1.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_dynamodb_table": 1,
+          "aws_lambda_function": 1,
+          "aws_iam_role": 1,
+          "aws_iam_role_policy": 1,
+          "aws_apigatewayv2_api": 1,
+          "aws_apigatewayv2_stage": 1,
+          "aws_apigatewayv2_integration": 1,
+          "aws_apigatewayv2_route": 1,
+          "aws_lambda_permission": 1
+        },
+        "examples": []
+      }
+    },
+    "s3": {
+      "v0.1.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_s3_bucket": 1
+        },
+        "examples": []
+      },
+      "v0.2.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_s3_bucket": 1
+        },
+        "examples": [
+          {
+            "name": "basic_usage",
+            "dependencies": [
+              ".."
+            ],
+            "resources": {}
+          },
+          {
+            "name": "data_lake",
+            "dependencies": [],
+            "resources": {}
+          },
+          {
+            "name": "static_website",
+            "dependencies": [],
+            "resources": {
+              "aws_s3_object": 2
+            }
+          }
+        ]
+      }
+    },
+    "vpc": {
+      "v0.1.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_vpc": 1,
+          "aws_internet_gateway": 1,
+          "aws_subnet": 2,
+          "aws_nat_gateway": 1,
+          "aws_eip": 1,
+          "aws_security_group": 1
+        },
+        "examples": []
+      },
+      "v0.2.0": {
+        "dependencies": [],
+        "resources": {
+          "aws_vpc": 1,
+          "aws_internet_gateway": 1,
+          "aws_subnet": 2,
+          "aws_nat_gateway": 1,
+          "aws_eip": 1,
+          "aws_security_group": 1
+        },
+        "examples": [
+          {
+            "name": "basic_usage",
+            "dependencies": [
+              ".."
+            ],
+            "resources": {}
+          },
+          {
+            "name": "multi_tier_app",
+            "dependencies": [],
+            "resources": {
+              "aws_security_group": 5,
+              "aws_lb": 1,
+              "aws_db_subnet_group": 1
+            }
+          }
+        ]
+      }
+    }
+  },
+  "most_common_dependencies": [],
+  "dependency_counts": {
+    "api_gateway:v0.1.0": 0,
+    "api_gateway:v0.2.0": 0,
+    "dynamodb:v0.1.0": 0,
+    "dynamodb:v0.2.0": 0,
+    "ec2:v0.1.0": 0,
+    "ec2:v0.2.0": 0,
+    "iam:v0.1.0": 0,
+    "iam:v0.2.0": 0,
+    "kms:v0.1.0": 0,
+    "kms:v0.2.0": 0,
+    "lambda:v0.1.0": 0,
+    "lambda:v0.2.0": 0,
+    "llm_router:v0.1.0": 0,
+    "s3:v0.1.0": 0,
+    "s3:v0.2.0": 0,
+    "vpc:v0.1.0": 0,
+    "vpc:v0.2.0": 0
+  }
+}

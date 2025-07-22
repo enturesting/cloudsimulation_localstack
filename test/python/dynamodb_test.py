@@ -1,5 +1,5 @@
 import pytest
-from python_terratest import Terraform
+from terraform_wrapper import Terraform
 import os
 
 def test_dynamodb_module_versions():

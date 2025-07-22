@@ -57,6 +57,12 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Start LocalStack
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          # Wait for LocalStack to be ready
+          timeout 120s bash -c 'until curl -f http://localhost:4566/_localstack/health; do sleep 2; done'
+
       - name: Run Terraform Hygiene Script
         shell: pwsh
         run: ./scripts/lint_terraform.ps1
@@ -75,3 +81,7 @@ jobs:
 
       - name: Run Python Tests
         run: python -m pytest test/python/ -v
+        
+      - name: Cleanup LocalStack
+        if: always()
+        run: docker-compose -f docker-compose.test.yml down -v

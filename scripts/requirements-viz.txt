@@ -1,0 +1,5 @@
+# Dependencies for visualization scripts
+networkx>=3.0
+plotly>=5.0.0
+python-hcl2>=4.0.0
+pathlib2>=2.3.7
