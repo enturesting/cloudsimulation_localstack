@@ -65,13 +65,17 @@ jobs:
 
       - name: Prepare Lambda Deployment Package
         run: |
-          # Create lambda deployment packages for all lambda modules
-          find modules -name "lambda" -type d | while read lambda_dir; do
-            if [[ -f "$lambda_dir/lambda_function.py" && ! -f "$lambda_dir/lambda_function.zip" ]]; then
+          # Create lambda deployment packages for all lambda modules that need them
+          find modules -path "*/lambda/v*/lambda_function.py" | while read python_file; do
+            lambda_dir="$(dirname "$python_file")"
+            zip_file="$lambda_dir/lambda_function.zip"
+            if [[ ! -f "$zip_file" ]]; then
               echo "Creating lambda package for $lambda_dir"
               cd "$lambda_dir"
               zip lambda_function.zip lambda_function.py
               cd - > /dev/null
+            else
+              echo "Lambda package already exists: $zip_file"
             fi
           done
         shell: bash
@@ -102,6 +106,11 @@ jobs:
         run: ./scripts/lint_terraform.ps1
 
       - name: Register Mock AMI
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_ENDPOINT_URL_EC2: http://localhost:4566
         working-directory: ./scripts
         run: pwsh ./register_mock_ami.ps1 -Env ${{ matrix.ami_env }}
 

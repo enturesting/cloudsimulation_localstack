@@ -40,6 +40,18 @@ jobs:
             echo "Terraform binary already has correct permissions or not found in expected locations"
           fi
 
+      - name: Start LocalStack
+        run: |
+          docker run -d --name localstack-test \
+            -p "4566:4566" \
+            -e LOCALSTACK_AUTH_TOKEN="$LOCALSTACK_AUTH_TOKEN" \
+            localstack/localstack-pro || docker run -d --name localstack-test \
+            -p "4566:4566" \
+            localstack/localstack
+          # Wait for LocalStack to be ready
+          timeout 120s bash -c 'until curl -f http://localhost:4566/_localstack/health; do sleep 2; done'
+        shell: bash
+
       - name: Create CI Environment Files
         run: |
           # Create minimal .auto.tfvars files for CI
@@ -67,18 +79,27 @@ jobs:
 
       - name: Prepare Lambda Deployment Package
         run: |
-          # Create lambda deployment packages for all lambda modules
-          find modules -name "lambda" -type d | while read lambda_dir; do
-            if [[ -f "$lambda_dir/lambda_function.py" && ! -f "$lambda_dir/lambda_function.zip" ]]; then
+          # Create lambda deployment packages for all lambda modules that need them
+          find modules -path "*/lambda/v*/lambda_function.py" | while read python_file; do
+            lambda_dir="$(dirname "$python_file")"
+            zip_file="$lambda_dir/lambda_function.zip"
+            if [[ ! -f "$zip_file" ]]; then
               echo "Creating lambda package for $lambda_dir"
               cd "$lambda_dir"
               zip lambda_function.zip lambda_function.py
               cd - > /dev/null
+            else
+              echo "Lambda package already exists: $zip_file"
             fi
           done
         shell: bash
 
       - name: Register Mock AMI (all environments)
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_ENDPOINT_URL_EC2: http://localhost:4566
         run: |
           # Make all bash scripts executable (belt and suspenders approach)
           find scripts -name "*.sh" -type f -exec chmod +x {} \;
@@ -104,3 +125,7 @@ jobs:
 
       - name: Run Python Tests
         run: python -m pytest test/python/ -v
+
+      - name: Cleanup LocalStack
+        if: always()
+        run: docker rm -f localstack-test || true
