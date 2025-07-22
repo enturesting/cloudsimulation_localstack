@@ -1,15 +1,27 @@
 from terraform_wrapper import Terraform
 import os
+import sys
 
 def test_dynamodb_module_versions():
-    # Get all version directories
-    versions_dir = '../../modules/dynamodb'
+    # Get the directory containing this test file
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    # Go up two levels to project root, then to modules
+    project_root = os.path.dirname(os.path.dirname(test_dir))
+    versions_dir = os.path.join(project_root, 'modules', 'dynamodb')
+    
+    if not os.path.exists(versions_dir):
+        print(f"Error: Module directory not found at {versions_dir}")
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"Test file location: {test_dir}")
+        print(f"Project root: {project_root}")
+        return
+    
     version_dirs = [d for d in os.listdir(versions_dir) if os.path.isdir(os.path.join(versions_dir, d))]
     
     for version in version_dirs:
-        # Configure Terraform options for this version
+        terraform_dir = os.path.join(versions_dir, version)
         terraform_options = {
-            'terraform_dir': f'../../modules/dynamodb/{version}',
+            'terraform_dir': terraform_dir,
             'vars': {},  # No variables needed for validation
             'env_vars': {
                 'AWS_ACCESS_KEY_ID': 'test',

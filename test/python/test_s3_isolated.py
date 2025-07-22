@@ -4,14 +4,28 @@ Test the S3 module with isolated terraform wrapper
 """
 
 import os
+import sys
 from terraform_wrapper import Terraform
 
 def test_s3_module_isolated():
     """Test S3 module with proper isolation"""
     
+    # Get the directory containing this test file
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    # Go up two levels to project root, then to modules
+    project_root = os.path.dirname(os.path.dirname(test_dir))
+    terraform_dir = os.path.join(project_root, 'modules', 's3', 'v0.2.0')
+    
+    if not os.path.exists(terraform_dir):
+        print(f"Error: Module directory not found at {terraform_dir}")
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"Test file location: {test_dir}")
+        print(f"Project root: {project_root}")
+        return
+    
     # Configure Terraform options for S3 module
     terraform_options = {
-        'terraform_dir': '../../modules/s3/v0.2.0',
+        'terraform_dir': terraform_dir,
         'vars': {
             'environment_name': 'test-isolated',
             'bucket_name': 'test-bucket'  # This gets prefixed automatically
