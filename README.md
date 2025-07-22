@@ -288,6 +288,45 @@ go test ./... -v -timeout 30m
 
 ---
 
+## 🔄 Automated Testing & CI/CD
+
+### GitHub Actions Integration
+
+The project includes comprehensive automated testing workflows that validate infrastructure, documentation, and code quality:
+
+```bash
+# View workflow status and history
+# Visit: https://github.com/your-repo/actions
+```
+
+**Available Workflows**:
+- **🏃‍♂️ ACT-Compatible Testing** (`act-test.yml`): Lightweight validation for local development
+- **🚀 Full CI/CD Pipeline** (`terraform-test.yml`): Comprehensive multi-environment testing
+
+**Testing Phases**:
+1. **Environment Setup**: Go, Python, Terraform, and LocalStack initialization
+2. **Infrastructure Validation**: Terraform hygiene, module syntax validation
+3. **Documentation Verification**: README.md completeness across all modules
+4. **Multi-Language Testing**: Both Go (Terratest) and Python test suites
+5. **Security & Quality**: Automated lambda packaging and AMI registration testing
+
+### Local Testing with Act
+
+```bash
+# Install act (GitHub Actions local runner)
+brew install act  # macOS
+
+# Run lightweight testing workflow locally
+act -W .github/workflows/act-test.yml
+
+# Run with LocalStack Pro token
+act -W .github/workflows/act-test.yml -s LOCALSTACK_AUTH_TOKEN="your-token"
+```
+
+**📋 For detailed CI/CD documentation, see [.github/workflows/README.md](.github/workflows/README.md)**
+
+---
+
 ## 🛡️ Security Scanning
 
 ### Automated Security Analysis
