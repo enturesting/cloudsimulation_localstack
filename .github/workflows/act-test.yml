@@ -80,8 +80,8 @@ jobs:
 
       - name: Register Mock AMI (all environments)
         run: |
-          # Make scripts executable
-          chmod +x scripts/register_mock_ami.sh
+          # Make all bash scripts executable (belt and suspenders approach)
+          find scripts -name "*.sh" -type f -exec chmod +x {} \;
           
           for ENV in develop nonprod; do
             echo "Registering AMI for $ENV"
