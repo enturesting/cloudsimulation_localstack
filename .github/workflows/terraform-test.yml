@@ -63,6 +63,40 @@ jobs:
           # Wait for LocalStack to be ready
           timeout 120s bash -c 'until curl -f http://localhost:4566/_localstack/health; do sleep 2; done'
 
+      - name: Prepare Lambda Deployment Package
+        run: |
+          # Create lambda deployment packages for all lambda modules
+          find modules -name "lambda" -type d | while read lambda_dir; do
+            if [[ -f "$lambda_dir/lambda_function.py" && ! -f "$lambda_dir/lambda_function.zip" ]]; then
+              echo "Creating lambda package for $lambda_dir"
+              cd "$lambda_dir"
+              zip lambda_function.zip lambda_function.py
+              cd - > /dev/null
+            fi
+          done
+        shell: bash
+
+      - name: Create CI Environment Files
+        run: |
+          # Create minimal .auto.tfvars files for CI
+          mkdir -p environments
+          cat > environments/develop.auto.tfvars << 'EOF'
+          access_key = "test"
+          secret_key = "test"
+          ami_id = "ami-12345678"
+          bucket_name = "test-dev-bucket"
+          account_id = "123456789012"
+          EOF
+          
+          cat > environments/nonprod.auto.tfvars << 'EOF'
+          access_key = "test"
+          secret_key = "test"
+          ami_id = "ami-12345678"
+          bucket_name = "test-nonprod-bucket"
+          account_id = "123456789013"
+          EOF
+        shell: bash
+
       - name: Run Terraform Hygiene Script
         shell: pwsh
         run: ./scripts/lint_terraform.ps1
