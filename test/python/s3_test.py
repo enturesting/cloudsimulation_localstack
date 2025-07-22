@@ -4,14 +4,14 @@ import os
 
 def test_s3_module_versions():
     # Get all version directories
-    versions_dir = '../modules/s3'
+    versions_dir = '../../modules/s3'
     version_dirs = [d for d in os.listdir(versions_dir) if os.path.isdir(os.path.join(versions_dir, d))]
     
     for version in version_dirs:
         with pytest.subTest(version=version):
             # Configure Terraform options for this version
             terraform_options = {
-                'terraform_dir': f'../modules/s3/{version}',
+                'terraform_dir': f'../../modules/s3/{version}',
                 'vars': {
                     'environment_name': f'test-s3-{version.replace(".", "-")}'
                 },

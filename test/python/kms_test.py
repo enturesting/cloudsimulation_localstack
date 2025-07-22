@@ -4,14 +4,14 @@ import os
 
 def test_kms_module_versions():
     # Get all version directories
-    versions_dir = '../modules/kms'
+    versions_dir = '../../modules/kms'
     version_dirs = [d for d in os.listdir(versions_dir) if os.path.isdir(os.path.join(versions_dir, d))]
     
     for version in version_dirs:
         with pytest.subTest(version=version):
             # Configure Terraform options for this version
             terraform_options = {
-                'terraform_dir': f'../modules/kms/{version}',
+                'terraform_dir': f'../../modules/kms/{version}',
                 'vars': {},
                 'env_vars': {
                     'AWS_ACCESS_KEY_ID': 'test',

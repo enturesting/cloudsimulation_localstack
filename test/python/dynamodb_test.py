@@ -4,14 +4,14 @@ import os
 
 def test_dynamodb_module_versions():
     # Get all version directories
-    versions_dir = '../modules/dynamodb'
+    versions_dir = '../../modules/dynamodb'
     version_dirs = [d for d in os.listdir(versions_dir) if os.path.isdir(os.path.join(versions_dir, d))]
     
     for version in version_dirs:
         with pytest.subTest(version=version):
             # Configure Terraform options for this version
             terraform_options = {
-                'terraform_dir': f'../modules/dynamodb/{version}',
+                'terraform_dir': f'../../modules/dynamodb/{version}',
                 'vars': {},
                 'env_vars': {
                     'AWS_ACCESS_KEY_ID': 'test',
