@@ -52,3 +52,18 @@ node_modules/
 
 # zip 
 *.zip
+
+# Certificate and key files (sensitive)
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# LocalStack certificate and cache files
+localstack/*/cache/
+localstack/*/certs/
+LocalStack_LOCAL_Root_CA.*
+server.test.pem*
+machine.json
+license.json
