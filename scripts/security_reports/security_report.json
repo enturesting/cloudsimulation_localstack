@@ -1,0 +1,73 @@
+{
+  "scan_metadata": {
+    "scan_time": "2025-07-21T21:50:30.766107",
+    "total_findings": 6
+  },
+  "summary": {
+    "high_issues": 6,
+    "medium_issues": 0,
+    "low_issues": 0
+  },
+  "findings": [
+    {
+      "severity": "HIGH",
+      "rule_id": "SEC_WILDCARD_POLICY",
+      "rule_name": "Wildcard Policy",
+      "description": "Potential wildcard_policy detected in line 136",
+      "file_path": "..\\modules\\dynamodb\\v0.2.0\\examples\\user_sessions.tf",
+      "resource_type": "unknown",
+      "resource_name": "unknown",
+      "recommendation": "Review and fix wildcard_policy issue"
+    },
+    {
+      "severity": "HIGH",
+      "rule_id": "SEC_WILDCARD_POLICY",
+      "rule_name": "Wildcard Policy",
+      "description": "Potential wildcard_policy detected in line 31",
+      "file_path": "..\\modules\\lambda\\v0.1.0\\main.tf",
+      "resource_type": "unknown",
+      "resource_name": "unknown",
+      "recommendation": "Review and fix wildcard_policy issue"
+    },
+    {
+      "severity": "HIGH",
+      "rule_id": "SEC_WILDCARD_POLICY",
+      "rule_name": "Wildcard Policy",
+      "description": "Potential wildcard_policy detected in line 31",
+      "file_path": "..\\modules\\lambda\\v0.2.0\\main.tf",
+      "resource_type": "unknown",
+      "resource_name": "unknown",
+      "recommendation": "Review and fix wildcard_policy issue"
+    },
+    {
+      "severity": "HIGH",
+      "rule_id": "SEC_WILDCARD_POLICY",
+      "rule_name": "Wildcard Policy",
+      "description": "Potential wildcard_policy detected in line 130",
+      "file_path": "..\\modules\\lambda\\v0.2.0\\examples\\api_microservice.tf",
+      "resource_type": "unknown",
+      "resource_name": "unknown",
+      "recommendation": "Review and fix wildcard_policy issue"
+    },
+    {
+      "severity": "HIGH",
+      "rule_id": "SEC_WILDCARD_POLICY",
+      "rule_name": "Wildcard Policy",
+      "description": "Potential wildcard_policy detected in line 106",
+      "file_path": "..\\modules\\llm_router\\v0.1.0\\main.tf",
+      "resource_type": "unknown",
+      "resource_name": "unknown",
+      "recommendation": "Review and fix wildcard_policy issue"
+    },
+    {
+      "severity": "HIGH",
+      "rule_id": "SEC_WILDCARD_POLICY",
+      "rule_name": "Wildcard Policy",
+      "description": "Potential wildcard_policy detected in line 160",
+      "file_path": "..\\modules\\llm_router\\v0.1.0\\main.tf",
+      "resource_type": "unknown",
+      "resource_name": "unknown",
+      "recommendation": "Review and fix wildcard_policy issue"
+    }
+  ]
+}

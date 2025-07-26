@@ -1,0 +1,11 @@
+# LocalStack configuration
+account_id = "000000000000"
+access_key         = "test-access-key"
+secret_key         = "test-secret-key"
+localstack_api_key = "your-localstack-api-key"
+
+# AWS configuration
+region = "us-east-1"
+
+# State configuration
+state_bucket = "your-state-bucket-name"

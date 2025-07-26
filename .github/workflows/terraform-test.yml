@@ -57,11 +57,60 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Start LocalStack
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          # Wait for LocalStack to be ready
+          timeout 120s bash -c 'until curl -f http://localhost:4566/_localstack/health; do sleep 2; done'
+
+      - name: Prepare Lambda Deployment Package
+        run: |
+          # Create lambda deployment packages for all lambda modules that need them
+          find modules -path "*/lambda/v*/lambda_function.py" | while read python_file; do
+            lambda_dir="$(dirname "$python_file")"
+            zip_file="$lambda_dir/lambda_function.zip"
+            if [[ ! -f "$zip_file" ]]; then
+              echo "Creating lambda package for $lambda_dir"
+              cd "$lambda_dir"
+              zip lambda_function.zip lambda_function.py
+              cd - > /dev/null
+            else
+              echo "Lambda package already exists: $zip_file"
+            fi
+          done
+        shell: bash
+
+      - name: Create CI Environment Files
+        run: |
+          # Create minimal .auto.tfvars files for CI
+          mkdir -p environments
+          cat > environments/develop.auto.tfvars << 'EOF'
+          access_key = "test"
+          secret_key = "test"
+          ami_id = "ami-12345678"
+          bucket_name = "test-dev-bucket"
+          account_id = "123456789012"
+          EOF
+          
+          cat > environments/nonprod.auto.tfvars << 'EOF'
+          access_key = "test"
+          secret_key = "test"
+          ami_id = "ami-12345678"
+          bucket_name = "test-nonprod-bucket"
+          account_id = "123456789013"
+          EOF
+        shell: bash
+
       - name: Run Terraform Hygiene Script
         shell: pwsh
         run: ./scripts/lint_terraform.ps1
 
       - name: Register Mock AMI
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_ENDPOINT_URL_EC2: http://localhost:4566
         working-directory: ./scripts
         run: pwsh ./register_mock_ami.ps1 -Env ${{ matrix.ami_env }}
 
@@ -71,7 +120,11 @@ jobs:
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest
+          pip install -r test/requirements.txt
 
       - name: Run Python Tests
         run: python -m pytest test/python/ -v
+        
+      - name: Cleanup LocalStack
+        if: always()
+        run: docker-compose -f docker-compose.test.yml down -v
