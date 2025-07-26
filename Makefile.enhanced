@@ -1,0 +1,244 @@
+# Enhanced Multi-Environment LocalStack + Terraform Management
+# Usage: make <target> ENV=<environment> REGION=<region>
+
+# Environment and region variables
+ENV ?= develop
+REGION ?= us-east-1
+ENVIRONMENTS := develop nonprod staging prod
+REGIONS := us-east-1 us-east-2
+
+# Port mapping for environments
+DEVELOP_PORT := 4566
+NONPROD_PORT := 4567
+STAGING_PORT := 4568
+PROD_PORT := 4569
+
+# Colors for output
+RED := \033[0;31m
+GREEN := \033[0;32m
+YELLOW := \033[0;33m
+BLUE := \033[0;34m
+NC := \033[0m # No Color
+
+.PHONY: help up-all down-all up down status init plan apply destroy deploy test-all clean
+
+# Default target
+help:
+	@echo "$(BLUE)Enhanced Multi-Environment LocalStack + Terraform Management$(NC)"
+	@echo ""
+	@echo "$(GREEN)Docker Commands:$(NC)"
+	@echo "  up-all          - Start all LocalStack environments"
+	@echo "  down-all        - Stop all LocalStack environments"
+	@echo "  up ENV=env      - Start specific environment (develop, nonprod, staging, prod)"
+	@echo "  down ENV=env    - Stop specific environment"
+	@echo "  status          - Check all environment health"
+	@echo ""
+	@echo "$(GREEN)Terraform Commands:$(NC)"
+	@echo "  init ENV=env REGION=region     - Initialize Terraform for specific env/region"
+	@echo "  plan ENV=env REGION=region     - Plan Terraform for specific env/region"
+	@echo "  apply ENV=env REGION=region    - Apply Terraform for specific env/region"
+	@echo "  destroy ENV=env REGION=region  - Destroy Terraform for specific env/region"
+	@echo "  deploy ENV=env REGION=region   - Full deployment (init + plan + apply)"
+	@echo ""
+	@echo "$(GREEN)Bulk Operations:$(NC)"
+	@echo "  deploy-all      - Deploy to all environments and regions"
+	@echo "  test-all        - Test all environments"
+	@echo "  destroy-all     - Destroy all environments and regions"
+	@echo "  clean           - Clean up all Terraform state and Docker volumes"
+	@echo ""
+	@echo "$(GREEN)Examples:$(NC)"
+	@echo "  make up ENV=staging"
+	@echo "  make deploy ENV=staging REGION=us-east-1"
+	@echo "  make status"
+
+# Docker Management Commands
+up-all:
+	@echo "$(GREEN)Starting all LocalStack environments...$(NC)"
+	docker-compose -f docker-compose.enhanced.yml up -d
+	@echo "$(YELLOW)Waiting for health checks...$(NC)"
+	@sleep 30
+	@make status
+
+down-all:
+	@echo "$(RED)Stopping all LocalStack environments...$(NC)"
+	docker-compose -f docker-compose.enhanced.yml down
+	@echo "$(YELLOW)Cleaning up Docker resources...$(NC)"
+	docker system prune -f
+
+up:
+	@echo "$(GREEN)Starting LocalStack environment: $(ENV)$(NC)"
+	docker-compose -f docker-compose.enhanced.yml up -d localstack-$(ENV)
+	@echo "$(YELLOW)Waiting for $(ENV) to be ready...$(NC)"
+	@sleep 15
+	@make status-env ENV=$(ENV)
+
+down:
+	@echo "$(RED)Stopping LocalStack environment: $(ENV)$(NC)"
+	docker-compose -f docker-compose.enhanced.yml stop localstack-$(ENV)
+
+status:
+	@echo "$(BLUE)=== LocalStack Environment Status ===$(NC)"
+	@for env in $(ENVIRONMENTS); do \
+		echo "$(YELLOW)Checking $$env...$(NC)"; \
+		port=$$(case $$env in \
+			develop) echo $(DEVELOP_PORT);; \
+			nonprod) echo $(NONPROD_PORT);; \
+			staging) echo $(STAGING_PORT);; \
+			prod) echo $(PROD_PORT);; \
+		esac); \
+		if curl -s http://localhost:$$port/_localstack/health >/dev/null 2>&1; then \
+			echo "$(GREEN)✓ $$env (port $$port): Running$(NC)"; \
+			curl -s http://localhost:$$port/_localstack/health | jq -r '.services | to_entries[] | "  \(.key): \(.value)"' 2>/dev/null || echo "  Services: Available"; \
+		else \
+			echo "$(RED)✗ $$env (port $$port): Not responding$(NC)"; \
+		fi; \
+		echo ""; \
+	done
+
+status-env:
+	@port=$$(case $(ENV) in \
+		develop) echo $(DEVELOP_PORT);; \
+		nonprod) echo $(NONPROD_PORT);; \
+		staging) echo $(STAGING_PORT);; \
+		prod) echo $(PROD_PORT);; \
+	esac); \
+	if curl -s http://localhost:$$port/_localstack/health >/dev/null 2>&1; then \
+		echo "$(GREEN)✓ $(ENV) (port $$port): Running$(NC)"; \
+	else \
+		echo "$(RED)✗ $(ENV) (port $$port): Not responding$(NC)"; \
+	fi
+
+# Terraform Management Commands
+setup-config:
+	@echo "$(YELLOW)Setting up configuration for $(ENV)/$(REGION)...$(NC)"
+	@if [ ! -f "environments/$(ENV)/$(REGION)/terraform.tfvars" ]; then \
+		if [ -f "environments/$(ENV)/$(REGION)/terraform.tfvars.template" ]; then \
+			cp "environments/$(ENV)/$(REGION)/terraform.tfvars.template" "environments/$(ENV)/$(REGION)/terraform.tfvars"; \
+			echo "$(GREEN)✓ Created terraform.tfvars from template$(NC)"; \
+		else \
+			echo "$(RED)✗ No template found for $(ENV)/$(REGION)$(NC)"; \
+			exit 1; \
+		fi; \
+	fi
+	@if [ ! -f "environments/$(ENV)/$(REGION)/main.tf" ]; then \
+		cp "environments/main.tf" "environments/$(ENV)/$(REGION)/main.tf"; \
+		echo "$(GREEN)✓ Created main.tf$(NC)"; \
+	fi
+
+init: setup-config
+	@echo "$(YELLOW)Initializing Terraform for $(ENV)/$(REGION)...$(NC)"
+	@cd environments/$(ENV)/$(REGION) && \
+	terraform init
+	@echo "$(GREEN)✓ Terraform initialized for $(ENV)/$(REGION)$(NC)"
+
+plan: setup-config
+	@echo "$(YELLOW)Planning Terraform for $(ENV)/$(REGION)...$(NC)"
+	@cd environments/$(ENV)/$(REGION) && \
+	terraform plan -var-file=terraform.tfvars
+	@echo "$(GREEN)✓ Terraform plan completed for $(ENV)/$(REGION)$(NC)"
+
+apply: setup-config
+	@echo "$(YELLOW)Applying Terraform for $(ENV)/$(REGION)...$(NC)"
+	@cd environments/$(ENV)/$(REGION) && \
+	terraform apply -var-file=terraform.tfvars -auto-approve
+	@echo "$(GREEN)✓ Terraform applied for $(ENV)/$(REGION)$(NC)"
+
+destroy: setup-config
+	@echo "$(RED)Destroying Terraform for $(ENV)/$(REGION)...$(NC)"
+	@cd environments/$(ENV)/$(REGION) && \
+	terraform destroy -var-file=terraform.tfvars -auto-approve
+	@echo "$(GREEN)✓ Terraform destroyed for $(ENV)/$(REGION)$(NC)"
+
+deploy: init plan apply
+	@echo "$(GREEN)✓ Full deployment completed for $(ENV)/$(REGION)$(NC)"
+
+# Testing Commands
+test-env:
+	@echo "$(YELLOW)Testing $(ENV) environment...$(NC)"
+	@port=$$(case $(ENV) in \
+		develop) echo $(DEVELOP_PORT);; \
+		nonprod) echo $(NONPROD_PORT);; \
+		staging) echo $(STAGING_PORT);; \
+		prod) echo $(PROD_PORT);; \
+	esac); \
+	echo "Testing basic connectivity..."; \
+	if curl -s http://localhost:$$port/_localstack/health >/dev/null 2>&1; then \
+		echo "$(GREEN)✓ $(ENV) health check passed$(NC)"; \
+	else \
+		echo "$(RED)✗ $(ENV) health check failed$(NC)"; \
+		exit 1; \
+	fi
+
+test-llm-router:
+	@echo "$(YELLOW)Testing LLM Router in $(ENV)...$(NC)"
+	@port=$$(case $(ENV) in \
+		develop) echo $(DEVELOP_PORT);; \
+		nonprod) echo $(NONPROD_PORT);; \
+		staging) echo $(STAGING_PORT);; \
+		prod) echo $(PROD_PORT);; \
+	esac); \
+	echo "Sending test request to LLM Router..."; \
+	curl -X POST http://localhost:$$port/llm-router \
+		-H "Content-Type: application/json" \
+		-d '{"user_id": "test-user", "query": "Generate a simple VPC configuration", "preferred_provider": "claude"}' \
+		2>/dev/null | jq . || echo "LLM Router not yet deployed or not responding"
+
+# Bulk Operations
+deploy-all:
+	@echo "$(BLUE)Deploying to all environments and regions...$(NC)"
+	@for env in $(ENVIRONMENTS); do \
+		for region in $(REGIONS); do \
+			echo "$(YELLOW)Deploying to $$env/$$region...$(NC)"; \
+			ENV=$$env REGION=$$region $(MAKE) deploy || echo "$(RED)✗ Deployment failed for $$env/$$region$(NC)"; \
+		done; \
+	done
+	@echo "$(GREEN)✓ Bulk deployment completed$(NC)"
+
+test-all:
+	@echo "$(BLUE)Testing all environments...$(NC)"
+	@for env in $(ENVIRONMENTS); do \
+		echo "$(YELLOW)Testing $$env...$(NC)"; \
+		ENV=$$env $(MAKE) test-env || echo "$(RED)✗ Test failed for $$env$(NC)"; \
+	done
+	@echo "$(GREEN)✓ All environment tests completed$(NC)"
+
+destroy-all:
+	@echo "$(RED)Destroying all environments and regions...$(NC)"
+	@read -p "Are you sure you want to destroy ALL environments? (y/N): " confirm; \
+	if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
+		for env in $(ENVIRONMENTS); do \
+			for region in $(REGIONS); do \
+				echo "$(RED)Destroying $$env/$$region...$(NC)"; \
+				ENV=$$env REGION=$$region $(MAKE) destroy || echo "$(RED)✗ Destruction failed for $$env/$$region$(NC)"; \
+			done; \
+		done; \
+		echo "$(GREEN)✓ Bulk destruction completed$(NC)"; \
+	else \
+		echo "$(YELLOW)Operation cancelled$(NC)"; \
+	fi
+
+clean:
+	@echo "$(RED)Cleaning up all Terraform state and Docker volumes...$(NC)"
+	@read -p "This will remove ALL Terraform state and Docker volumes. Are you sure? (y/N): " confirm; \
+	if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
+		$(MAKE) down-all; \
+		find environments -name "*.tfstate*" -delete; \
+		find environments -name ".terraform" -type d -exec rm -rf {} + 2>/dev/null || true; \
+		docker volume prune -f; \
+		echo "$(GREEN)✓ Cleanup completed$(NC)"; \
+	else \
+		echo "$(YELLOW)Operation cancelled$(NC)"; \
+	fi
+
+# Environment-specific shortcuts
+develop: ENV=develop
+develop: up deploy
+
+nonprod: ENV=nonprod
+nonprod: up deploy
+
+staging: ENV=staging
+staging: up deploy
+
+prod: ENV=prod
+prod: up deploy

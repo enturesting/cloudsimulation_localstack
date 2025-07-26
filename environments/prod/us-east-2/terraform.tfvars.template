@@ -1,0 +1,53 @@
+# Environment and region configuration
+environment_name = "prod"
+aws_region = "us-east-2"
+localstack_port = 4569
+
+# Infrastructure configuration
+table_name = "ProdSharedTableEast2"
+hash_key = "ID"
+attribute_type = "S"
+owner = "nick"
+instance_type = "t3.medium"
+
+# Feature flags
+enable_kms = true
+enable_vpc = true
+enable_ec2 = true
+enable_sse = true
+enable_iam = true
+enable_api_gateway = true
+enable_lambda = true
+
+# LLM Router configuration
+lambda_function_name = "prod-llm-router-east2"
+api_gateway_name = "prod-llm-api-east2"
+api_gateway_stage_name = "prod"
+
+# Networking (prod us-east-2 specific CIDR ranges)
+availability_zones = ["us-east-2a", "us-east-2b"]
+vpc_cidr = "10.5.0.0/16"
+public_subnet_cidrs = ["10.5.1.0/24", "10.5.2.0/24"]
+private_subnet_cidrs = ["10.5.10.0/24", "10.5.20.0/24"]
+
+# Security and compliance (prod-specific - enhanced)
+enable_encryption_at_rest = true
+enable_backup = true
+backup_retention_days = 30
+
+# Tags
+common_tags = {
+  Environment = "prod"
+  Owner = "nick"
+  Project = "cloudsimulation-localstack"
+  Region = "us-east-2"
+  ManagedBy = "terraform"
+  CriticalityLevel = "high"
+}
+
+# LocalStack specific credentials
+access_key = "prod-key"
+secret_key = "prod-secret"
+
+# User data script
+user_data = "#!/bin/bash\necho Hello from prod us-east-2 > /tmp/prod-east2.txt"

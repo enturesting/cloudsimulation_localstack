@@ -1,13 +1,18 @@
-# Terraform
+# Terraform State and Plans
 *.tfstate*
 *.tfstate.backup
 .terraform/
 .terraform.lock.hcl
-*.tfvars.local
-terraform.tfvars
-*.auto.tfvars
 *tfplan*
 register-ami-*-*.json
+
+# Terraform Variables (exclude actual configs, keep templates)
+# Terraform variable files (contain secrets) - TEMPORARILY COMMENTED FOR WORKFLOW
+*.auto.tfvars
+*.auto.tfvars.json
+# But allow templates
+!*.tfvars.template
+!*.tfvars.example
 # Secrets
 .env
 *.env
@@ -34,8 +39,13 @@ bin/
 __pycache*
 .pytest_cach*
 
-# Localstack
-localstack/
+# LocalStack data (exclude runtime data, keep structure)
+localstack/*/data/
+localstack/*/*.log
+localstack/*/tmp/
+# But allow directory structure and configs
+!localstack/*/
+!localstack/docker-compose*.yml
 
 # Node.js
 node_modules/

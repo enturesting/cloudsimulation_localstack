@@ -1,0 +1,122 @@
+networks:
+  develop-net:
+    driver: bridge
+  nonprod-net:
+    driver: bridge
+  staging-net:
+    driver: bridge
+  prod-net:
+    driver: bridge
+
+services:
+  # Existing develop environment (port 4566)
+  localstack-develop:
+    container_name: localstack-develop
+    image: localstack/localstack-pro:latest
+    ports:
+      - "4566:4566"
+    environment:
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
+      - DEBUG=1
+      - SERVICES=s3,dynamodb,lambda,apigateway,iam,kms,ec2,sts
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=develop-key
+      - AWS_SECRET_ACCESS_KEY=develop-secret
+      - PERSISTENCE=1
+    volumes:
+      - "./localstack/develop:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - develop-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  # Existing nonprod environment (port 4567)
+  localstack-nonprod:
+    container_name: localstack-nonprod
+    image: localstack/localstack-pro:latest
+    ports:
+      - "4567:4566"
+    environment:
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
+      - DEBUG=1
+      - SERVICES=s3,dynamodb,lambda,apigateway,iam,kms,ec2,sts
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=nonprod-key
+      - AWS_SECRET_ACCESS_KEY=nonprod-secret
+      - PERSISTENCE=1
+    volumes:
+      - "./localstack/nonprod:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - nonprod-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  # New staging environment (port 4568)
+  localstack-staging:
+    container_name: localstack-staging
+    image: localstack/localstack-pro:latest
+    ports:
+      - "4568:4566"
+    environment:
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
+      - DEBUG=1
+      - SERVICES=s3,dynamodb,lambda,apigateway,iam,kms,ec2,sts
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=staging-key
+      - AWS_SECRET_ACCESS_KEY=staging-secret
+      - PERSISTENCE=1
+    volumes:
+      - "./localstack/staging:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - staging-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  # New prod environment (port 4569)
+  localstack-prod:
+    container_name: localstack-prod
+    image: localstack/localstack-pro:latest
+    ports:
+      - "4569:4566"
+    environment:
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
+      - DEBUG=1
+      - SERVICES=s3,dynamodb,lambda,apigateway,iam,kms,ec2,sts
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=prod-key
+      - AWS_SECRET_ACCESS_KEY=prod-secret
+      - PERSISTENCE=1
+    volumes:
+      - "./localstack/prod:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - prod-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s

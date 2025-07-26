@@ -1,0 +1,52 @@
+# Environment and region configuration
+environment_name = "staging"
+aws_region = "us-east-2"
+localstack_port = 4568
+
+# Infrastructure configuration
+table_name = "StagingSharedTableEast2"
+hash_key = "ID"
+attribute_type = "S"
+owner = "nick"
+instance_type = "t3.small"
+
+# Feature flags
+enable_kms = true
+enable_vpc = true
+enable_ec2 = true
+enable_sse = true
+enable_iam = true
+enable_api_gateway = true
+enable_lambda = true
+
+# LLM Router configuration
+lambda_function_name = "staging-llm-router-east2"
+api_gateway_name = "staging-llm-api-east2"
+api_gateway_stage_name = "staging"
+
+# Networking (staging us-east-2 specific CIDR ranges)
+availability_zones = ["us-east-2a", "us-east-2b"]
+vpc_cidr = "10.3.0.0/16"
+public_subnet_cidrs = ["10.3.1.0/24", "10.3.2.0/24"]
+private_subnet_cidrs = ["10.3.10.0/24", "10.3.20.0/24"]
+
+# Security and compliance (staging-specific)
+enable_encryption_at_rest = true
+enable_backup = true
+backup_retention_days = 7
+
+# Tags
+common_tags = {
+  Environment = "staging"
+  Owner = "nick"
+  Project = "cloudsimulation-localstack"
+  Region = "us-east-2"
+  ManagedBy = "terraform"
+}
+
+# LocalStack specific credentials
+access_key = "staging-key"
+secret_key = "staging-secret"
+
+# User data script
+user_data = "#!/bin/bash\necho Hello from staging us-east-2 > /tmp/staging-east2.txt"
