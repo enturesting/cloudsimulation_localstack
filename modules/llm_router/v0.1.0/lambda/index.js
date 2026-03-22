@@ -1,5 +1,8 @@
-const AWS = require('aws-sdk');
-const dynamoDB = new AWS.DynamoDB.DocumentClient();
+const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+const { DynamoDBDocumentClient, PutCommand } = require('@aws-sdk/lib-dynamodb');
+
+const client = new DynamoDBClient({});
+const dynamoDB = DynamoDBDocumentClient.from(client);
 
 exports.handler = async (event) => {
     try {
@@ -8,7 +11,7 @@ exports.handler = async (event) => {
 
         // Store the conversation in DynamoDB
         const timestamp = new Date().toISOString();
-        await dynamoDB.put({
+        await dynamoDB.send(new PutCommand({
             TableName: process.env.CONVERSATION_TABLE,
             Item: {
                 user_id,
@@ -16,7 +19,7 @@ exports.handler = async (event) => {
                 query,
                 response: "This is a test response"
             }
-        }).promise();
+        }));
 
         return {
             statusCode: 200,

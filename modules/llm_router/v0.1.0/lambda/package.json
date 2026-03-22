@@ -4,6 +4,7 @@
   "description": "LLM Router Lambda Function",
   "main": "index.js",
   "dependencies": {
-    "aws-sdk": "^2.1499.0"
+    "@aws-sdk/client-dynamodb": "^3.1014.0",
+    "@aws-sdk/lib-dynamodb": "^3.1014.0"
   }
-} 
+}
