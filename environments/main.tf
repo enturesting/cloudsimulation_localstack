@@ -148,7 +148,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
           "dynamodb:Scan",
           "dynamodb:Query"
         ]
-        Resource = "*"
+        Resource = module.dynamodb_table.table_arn
       },
       {
         Effect = "Allow"
@@ -157,7 +157,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = "arn:aws:logs:*:*:*"
+        Resource = "arn:aws:logs:us-east-1:${var.account_id}:log-group:/aws/lambda/${var.lambda_function_name}:*"
       }
     ]
   })

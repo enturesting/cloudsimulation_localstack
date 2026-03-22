@@ -17,13 +17,13 @@ services:
       - "4566:4566"
     environment:
       - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
-      - DEBUG=1
+      - DEBUG=${LOCALSTACK_DEBUG:-0}
       - SERVICES=s3,dynamodb,lambda,apigateway,iam,kms,ec2,sts
       - DATA_DIR=/tmp/localstack/data
       - DOCKER_HOST=unix:///var/run/docker.sock
       - AWS_DEFAULT_REGION=us-east-1
-      - AWS_ACCESS_KEY_ID=develop-key
-      - AWS_SECRET_ACCESS_KEY=develop-secret
+      - AWS_ACCESS_KEY_ID=${DEVELOP_AWS_ACCESS_KEY_ID:-test}
+      - AWS_SECRET_ACCESS_KEY=${DEVELOP_AWS_SECRET_ACCESS_KEY:-test}
       - PERSISTENCE=1
     volumes:
       - "./localstack/develop:/tmp/localstack"
@@ -45,13 +45,13 @@ services:
       - "4567:4566"
     environment:
       - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
-      - DEBUG=1
+      - DEBUG=${LOCALSTACK_DEBUG:-0}
       - SERVICES=s3,dynamodb,lambda,apigateway,iam,kms,ec2,sts
       - DATA_DIR=/tmp/localstack/data
       - DOCKER_HOST=unix:///var/run/docker.sock
       - AWS_DEFAULT_REGION=us-east-1
-      - AWS_ACCESS_KEY_ID=nonprod-key
-      - AWS_SECRET_ACCESS_KEY=nonprod-secret
+      - AWS_ACCESS_KEY_ID=${NONPROD_AWS_ACCESS_KEY_ID:-test}
+      - AWS_SECRET_ACCESS_KEY=${NONPROD_AWS_SECRET_ACCESS_KEY:-test}
       - PERSISTENCE=1
     volumes:
       - "./localstack/nonprod:/tmp/localstack"
@@ -73,13 +73,13 @@ services:
       - "4568:4566"
     environment:
       - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
-      - DEBUG=1
+      - DEBUG=${LOCALSTACK_DEBUG:-0}
       - SERVICES=s3,dynamodb,lambda,apigateway,iam,kms,ec2,sts
       - DATA_DIR=/tmp/localstack/data
       - DOCKER_HOST=unix:///var/run/docker.sock
       - AWS_DEFAULT_REGION=us-east-1
-      - AWS_ACCESS_KEY_ID=staging-key
-      - AWS_SECRET_ACCESS_KEY=staging-secret
+      - AWS_ACCESS_KEY_ID=${STAGING_AWS_ACCESS_KEY_ID:-test}
+      - AWS_SECRET_ACCESS_KEY=${STAGING_AWS_SECRET_ACCESS_KEY:-test}
       - PERSISTENCE=1
     volumes:
       - "./localstack/staging:/tmp/localstack"
@@ -101,13 +101,13 @@ services:
       - "4569:4566"
     environment:
       - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
-      - DEBUG=1
+      - DEBUG=${LOCALSTACK_DEBUG:-0}
       - SERVICES=s3,dynamodb,lambda,apigateway,iam,kms,ec2,sts
       - DATA_DIR=/tmp/localstack/data
       - DOCKER_HOST=unix:///var/run/docker.sock
       - AWS_DEFAULT_REGION=us-east-1
-      - AWS_ACCESS_KEY_ID=prod-key
-      - AWS_SECRET_ACCESS_KEY=prod-secret
+      - AWS_ACCESS_KEY_ID=${PROD_AWS_ACCESS_KEY_ID:-test}
+      - AWS_SECRET_ACCESS_KEY=${PROD_AWS_SECRET_ACCESS_KEY:-test}
       - PERSISTENCE=1
     volumes:
       - "./localstack/prod:/tmp/localstack"

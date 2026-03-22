@@ -16,7 +16,7 @@ resource "aws_api_gateway_method" "this" {
   rest_api_id   = aws_api_gateway_rest_api.this.id
   resource_id   = aws_api_gateway_resource.this.id
   http_method   = var.methods[count.index]
-  authorization = "NONE"
+  authorization = var.authorization
 }
 
 resource "aws_api_gateway_integration" "this" {
