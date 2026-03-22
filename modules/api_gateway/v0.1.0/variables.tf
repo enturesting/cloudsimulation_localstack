@@ -34,4 +34,10 @@ variable "tags" {
   description = "Tags to apply to the API Gateway"
   type        = map(string)
   default     = {}
-} 
+}
+
+variable "authorization" {
+  description = "Authorization type for API Gateway methods (e.g., NONE, AWS_IAM, CUSTOM, COGNITO_USER_POOLS)"
+  type        = string
+  default     = "AWS_IAM"
+}
